@@ -1,0 +1,37 @@
+import React from 'react';
+import Pagination from '@mui/material/Pagination';
+import { StyledPaginationContainer } from './style';
+
+const Index = ({ page, count, rowsPerPage, onPageChange, onRowsPerPageChange }) => {
+
+  // const pageOptions = []
+  // for (let i = 5; i <= count; i += 5) {
+  //   pageOptions.push(i)
+  // }
+  // pageOptions.push(count)
+
+  return (
+    <StyledPaginationContainer>
+      <div className='left'>
+        <span>Show</span>
+        <select value={rowsPerPage} onChange={onRowsPerPageChange}>
+          {[5, 10, 20, 30].map((rowsPerPageOption) => (
+            <option key={rowsPerPageOption} value={rowsPerPageOption}>
+              {rowsPerPageOption}
+            </option>
+          ))}
+        </select>
+        <span>entries of {count} entries</span>
+      </div>
+      <Pagination
+        page={page}
+        shape='rounded'
+        variant='outlined'
+        onChange={onPageChange}
+        count={Math.ceil(count / rowsPerPage)}
+      />
+    </StyledPaginationContainer>
+  )
+}
+
+export default Index

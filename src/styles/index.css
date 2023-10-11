@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    box-sizing: border-box;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+    padding: 0;
+}
+
+/* SweetAlert */
+.swal2-popup {
+    padding: 0 !important;
+    background: #2C2C2C;
+    width: 26.5em !important;
+}
+
+.sweetAlert-title {
+    line-height: 34px;
+    font-style: normal;
+    font-family: 'Poppins';
+    letter-spacing: 0.0038em;
+    font-size: 28px !important;
+    font-weight: 500 !important;
+    color: #FEFEFE !important;
+    padding-top: 16px !important;
+}
+
+.sweetAlert-message {
+    font-size: 18px;
+    font-weight: 400;
+    color: #DADBDC;
+    line-height: 132%;
+    font-style: normal;
+    padding-bottom: 15px;
+    font-family: 'Poppins';
+}
+
+.swal2-confirm.swal2-styled {
+    display: none !important;
+}
+
+.swal2-success-circular-line-left, .swal2-success-fix, .swal2-success-circular-line-right {
+    background: transparent;
+}
+
+.sweetAlert-close-btn {
+    top: 16px;
+    right: 22px;
+    position: absolute;
+}
+
+.sweetAlert-close-btn button {
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    background: transparent;
+}
+
+/* ant-select-dropdown  */
+.ant-select-dropdown {
+    box-shadow: none;
+    background: #2C2C2C;
+}
+
+.ant-select-dropdown .ant-select-item {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 132%;
+    font-style: normal;
+    padding-bottom: 15px;
+    font-family: 'Poppins';
+    color: #FEFEFE !important;
+}
+
+/* Button */
+.approval-btn, .reject-btn {
+    border: none;
+    outline: none;
+    font-size: 12px;
+    cursor: pointer;
+    color: #FEFEFE;
+    font-weight: 500;
+    line-height: 22px;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-style: normal;
+    font-family: Poppins;
+}
+
+.approval-btn {
+    background: #2EB05E !important;
+}
+
+.reject-btn {
+    background: #EC3C46 !important;
+}
+
+.view-btn {
+    padding: 0;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    background: transparent;
+}
+
+/* rating Text */
+.rating-text {
+    font-size: 14px;
+    color: #DADBDC;
+    font-weight: 400;
+    line-height: 22px;
+    font-style: normal;
+    font-family: Poppins;
+}
+
+@media screen and (max-width: 520px) {
+    .approval-btn, .reject-btn {
+        padding: 4px 8px;
+    }
+}
