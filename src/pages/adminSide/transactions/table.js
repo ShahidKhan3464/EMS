@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import moment from 'moment';
-import { Icons } from 'assets';
 import { saveAs } from 'file-saver';
-import PrintReceipt from './receipt';
 import Table from '@mui/material/Table';
-import { truncatedString } from 'utils';
 import Paper from '@mui/material/Paper';
 import { pdf } from '@react-pdf/renderer';
 import MenuList from 'components/menuList';
@@ -13,13 +10,15 @@ import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import Pagination from 'components/pagination';
 import DownloadReceipt from './DownloadReceipt';
+import LoaderContainer from 'components/loader';
 import TableBody from '@mui/material/TableBody';
 import TableHead from '@mui/material/TableHead';
 import TableCell from '@mui/material/TableCell';
 import { useReactToPrint } from 'react-to-print';
+import PrintReceipt from 'components/viewReceipt';
+import NoResultsFound from 'components/noResultsFound';
 import TableContainer from '@mui/material/TableContainer';
-import CircularProgress from '@mui/material/CircularProgress';
-import { StyledTableCell, StyledTableRow, StyledNoResultsFound, mainColor } from 'styles/global';
+import { StyledTableCell, StyledTableRow, mainColor } from 'styles/global';
 
 const options = [
     { value: 'view', text: 'View' },
@@ -29,11 +28,9 @@ const options = [
 
 const Index = ({ payload, selected, totalRecords, data, loading, setPayload, setSelected }) => {
     const componentRef = useRef()
-    // const [id, setId] = useState(null)
+    const [id, setId] = useState(null)
     const noResultsFound = data.length === 0
-    const [dialogType, setDialogType] = useState(null)
     const [dialogOpen, setDialogOpen] = useState(false)
-    const [trscDetails, setTrscDetails] = useState(null)
     const [printTrigger, setPrintTrigger] = useState(false)
 
     const isSelected = (id) => {
@@ -49,6 +46,12 @@ const Index = ({ payload, selected, totalRecords, data, loading, setPayload, set
     const printReceipt = useReactToPrint({
         content: () => componentRef.current
     })
+
+    const getDateFormat = (dataStr) => {
+        const originalDate = moment(dataStr)
+        const formattedDate = originalDate.format("DD MMM YYYY hh.mm A")
+        return formattedDate
+    }
 
     const handleChangePage = (event, newPage) => {
         setPayload(prevData => ({
@@ -88,20 +91,19 @@ const Index = ({ payload, selected, totalRecords, data, loading, setPayload, set
     }
 
     const handleTableMenu = async (id, option) => {
-        const filteredTransaction = data.find(item => item.id === id)
+        const filteredData = data.find(item => item.id === id)
         if (option === 'view') {
+            setId(id)
             setDialogOpen(true)
-            setDialogType(option)
-            setTrscDetails(filteredTransaction)
         }
 
         else if (option === 'print receipt') {
+            setId(id)
             setPrintTrigger(true)
-            setTrscDetails(filteredTransaction)
         }
 
         else if (option === 'download') {
-            const doc = pdf(<DownloadReceipt data={filteredTransaction} />)
+            const doc = pdf(<DownloadReceipt data={filteredData} />)
             const blob = await doc.toBlob()
             saveAs(blob, 'receipt.pdf')
         }
@@ -118,13 +120,14 @@ const Index = ({ payload, selected, totalRecords, data, loading, setPayload, set
         <React.Fragment>
             {dialogOpen && (
                 <ReceiptDialog
+                    id={id}
+                    setId={setId}
                     open={dialogOpen}
-                    data={trscDetails}
                     setOpen={setDialogOpen}
                 />
             )}
             <div style={{ display: 'none' }}>
-                <PrintReceipt data={trscDetails} componentRef={componentRef} />
+                {(!dialogOpen && id) && <PrintReceipt id={id} componentRef={componentRef} />}
             </div>
             <TableContainer
                 component={Paper}
@@ -159,38 +162,16 @@ const Index = ({ payload, selected, totalRecords, data, loading, setPayload, set
                             <StyledTableCell>Service provider</StyledTableCell>
                             <StyledTableCell>Advance payments</StyledTableCell>
                             <StyledTableCell>Price</StyledTableCell>
-                            <StyledTableCell>Date</StyledTableCell>
-                            <StyledTableCell>Time</StyledTableCell>
+                            <StyledTableCell>Date & Time</StyledTableCell>
+                            <StyledTableCell>Platform fee</StyledTableCell>
                             <StyledTableCell>Action</StyledTableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {loading ? (
-                            <TableRow>
-                                <TableCell colSpan={8} align="center" sx={{ borderBottom: 'none' }}>
-                                    <div
-                                        style={{
-                                            height: '100vh',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center'
-                                        }}
-                                    >
-                                        <CircularProgress color="inherit" />
-                                    </div>
-                                </TableCell>
-                            </TableRow>
+                            <LoaderContainer />
                         ) : noResultsFound ? (
-                            <TableRow>
-                                <TableCell colSpan={8} align="center" sx={{ borderBottom: 'none' }}>
-                                    <StyledNoResultsFound>
-                                        <div className='box'>
-                                            <img src={Icons.notFound} alt='no-result-found' />
-                                            <h3>No transaction found</h3>
-                                        </div>
-                                    </StyledNoResultsFound>
-                                </TableCell>
-                            </TableRow>
+                            <NoResultsFound text="No transaction found" />
                         ) : (
                             data.map((item, index) => {
                                 const isItemSelected = isSelected(item.id)
@@ -222,13 +203,13 @@ const Index = ({ payload, selected, totalRecords, data, loading, setPayload, set
                                                 }}
                                             />
                                         </TableCell>
-                                        <StyledTableCell>{truncatedString(item.id)}</StyledTableCell>
-                                        <StyledTableCell>{item.name}</StyledTableCell>
-                                        <StyledTableCell>{item.serPro}</StyledTableCell>
-                                        <StyledTableCell>{item.advance} Advance</StyledTableCell>
+                                        <StyledTableCell>#{item.transactionId}</StyledTableCell>
+                                        <StyledTableCell>{item.customerName}</StyledTableCell>
+                                        <StyledTableCell>{item.providerName}</StyledTableCell>
+                                        <StyledTableCell>{item.advancePaymentPercentage}% Advance</StyledTableCell>
                                         <StyledTableCell>€{item.price}</StyledTableCell>
-                                        <StyledTableCell>{item.date}</StyledTableCell>
-                                        <StyledTableCell>{item.time}</StyledTableCell>
+                                        <StyledTableCell>{getDateFormat(item.date)}</StyledTableCell>
+                                        <StyledTableCell>€{item.platformFee}</StyledTableCell>
                                         <StyledTableCell>
                                             <MenuList
                                                 id={item.id}
@@ -247,7 +228,7 @@ const Index = ({ payload, selected, totalRecords, data, loading, setPayload, set
             {!noResultsFound && !loading && (
                 <Pagination
                     page={payload.page}
-                    count={data.length}
+                    count={totalRecords}
                     rowsPerPage={payload.pageSize}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}

@@ -7,6 +7,7 @@ import servicesReducers from "./services/reducers";
 import bookingsReducers from "./bookings/reducers";
 import customersReducers from "./customers/reducers";
 import priceGuideReducers from "./priceGuide/reducers";
+import cardCounterReducers from "./cardsCounter/reducers";
 import transactionsReducers from "./transactions/reducers";
 import notificationsReducers from "./notifications/reducers";
 import serviceProvidersReducers from "./serviceProviders/reducers";
@@ -20,6 +21,7 @@ const rootReducer = combineReducers({
     servicesReducers: servicesReducers,
     customersReducers: customersReducers,
     priceGuideReducers: priceGuideReducers,
+    cardCounterReducers: cardCounterReducers,
     transactionsReducers: transactionsReducers,
     notificationsReducers: notificationsReducers,
     serviceProvidersReducers: serviceProvidersReducers,

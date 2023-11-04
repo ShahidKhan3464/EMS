@@ -47,12 +47,6 @@ const Index = ({ id, rating, email, profile, noOfOrder, noOfServices, vatCer }) 
                     <div className='image'>
                         <img src={Icons.profileAvatar} alt='avatar' />
                     </div>
-                    {/* <StyledStatus
-                    bg={'#FFF'}
-                    color={'#22C55E'}
-                >
-                    Available
-                </StyledStatus> */}
                 </div>
                 <div className='profile_content'>
                     <div className='profile_content_text'>
@@ -123,7 +117,6 @@ const Index = ({ id, rating, email, profile, noOfOrder, noOfServices, vatCer }) 
                                     {rating !== undefined && (
                                         <p>
                                             {rating.toFixed(2)}
-                                            {/* based on 250 reviews */}
                                         </p>
                                     )}
                                 </div>

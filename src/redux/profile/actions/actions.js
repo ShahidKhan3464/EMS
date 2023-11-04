@@ -90,7 +90,7 @@ export const viewProfile = () => async (dispatch) => {
   try {
     const response = await api.get('/admin-profile/view-profile')
     if (response.data.Succeeded) {
-      dispatch({ type: VIEW_PROFILE_SUCCESS, payload: response.data.data.adminProfile.logo })
+      dispatch({ type: VIEW_PROFILE_SUCCESS, payload: response.data.data.adminProfile?.logo })
     }
   }
   catch (err) {

@@ -1,24 +1,27 @@
-import React, { useState } from 'react';
+import React from 'react';
 import * as Yup from "yup";
 import { Form } from "antd";
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { verifyOtp } from 'redux/auth/actions';
 import StyledAuthBox from 'components/authBox';
 import TextFieldInput from 'components/inputField';
 import { Formik, Field, ErrorMessage } from "formik";
+import { useDispatch, useSelector } from 'react-redux';
 import CircularProgress from '@mui/material/CircularProgress';
 import { PrimaryButton, FieldErrorMessage } from 'styles/global';
 
 const Index = () => {
     const navigate = useNavigate()
-    const [loading, setLoading] = useState(false)
+    const location = useLocation()
+    const dispatch = useDispatch()
+    const { loading } = useSelector((state) => state.authReducers.verifyOtp)
+    const email = location.state
 
-    const handleSubmit = async (data) => {
-        try {
+    const moveRouter = () => { navigate("/reset-password", { state: email }) }
 
-        }
-        catch (error) {
-
-        }
+    const handleSubmit = (data) => {
+        data.email = email
+        dispatch(verifyOtp(data, moveRouter))
     }
 
     return (
@@ -29,7 +32,7 @@ const Index = () => {
             </div>
             <div className='form-container'>
                 <Formik
-                    initialValues={{ code: "" }}
+                    initialValues={{ otp: "" }}
                     validationSchema={validationSchema}
                     onSubmit={handleSubmit}
                 >
@@ -42,7 +45,7 @@ const Index = () => {
                                 onFinish={formik.handleSubmit}
                             >
                                 <div className='field-control'>
-                                    <Field name="code">
+                                    <Field name="otp">
                                         {({ field }) => (
                                             <React.Fragment>
                                                 <TextFieldInput
@@ -51,7 +54,7 @@ const Index = () => {
                                                     mbwidth="26%"
                                                     label="Enter code"
                                                     field={{ ...field }}
-                                                    error={formik.errors.code && formik.touched.code}
+                                                    error={formik.errors.otp && formik.touched.otp}
                                                 />
                                                 <ErrorMessage name={field.name} component={FieldErrorMessage} />
                                             </React.Fragment>
@@ -92,6 +95,6 @@ const Index = () => {
 
 export default Index
 const validationSchema = Yup.object({
-    code: Yup.number()
+    otp: Yup.number()
         .required('This field is required')
 });

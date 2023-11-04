@@ -1,3 +1,3 @@
-import { bookingsList, bookingDetails } from './actions';
+import { bookingsList, bookingDetails, bookingRefund } from './actions';
 
-export { bookingsList, bookingDetails }
+export { bookingsList, bookingDetails, bookingRefund }

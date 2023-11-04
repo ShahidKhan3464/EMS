@@ -4,6 +4,7 @@ import Profile from './profile';
 import List from './servicesList';
 import LayoutContent from 'layout';
 import Tab from '@mui/material/Tab';
+import { payloadData } from 'utils';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Dialog from 'components/dialog';
@@ -15,7 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import ReasonOfBlockingForm from '../reasonOfBlockingForm';
 import CircularProgress from '@mui/material/CircularProgress';
 import { StyledDetailContent, StyledLoadingContainer, StyledMainHeading } from 'styles/global';
-import { serviceProviderBlockUnBlock, serviceProviderDetails } from 'redux/serviceProviders/actions';
+import { serviceProviderBlockUnBlock, serviceProviderBookingDetails, serviceProviderDetails } from 'redux/serviceProviders/actions';
 
 const services = [
     {
@@ -53,7 +54,12 @@ const Index = () => {
     const [servicesBySubCategories, setServicesBySubCategories] = useState([])
     const [subCategoriesByCategory, setSubCategoriesByCategory] = useState([])
     const { loading, data } = useSelector((state) => state.serviceProvidersReducers.details)
+    const { list } = useSelector((state) => state.serviceProvidersReducers.bookingDetails.data)
     const { loading: serviceLoading, data: serviceDetails } = useSelector((state) => state.servicesReducers.details)
+    const updatedPayload = {
+        ...payloadData,
+        condition: { bookedState: "IN_PROGRESS", providerService: { user: { id } } }
+    }
 
     const TabPanel = (props) => {
         const { children, value, index, ...other } = props
@@ -81,6 +87,38 @@ const Index = () => {
         }
     }
 
+    const calculateTotalAmount = (booking) => {
+        if (booking.providerService.pricingOption === "PER_HOUR") {
+            return booking.providerService.price * booking.providerService.hours
+        }
+        else {
+            return booking.providerService.price
+        }
+    }
+
+    const calculateTotalAmountForAllBookings = (bookings) => {
+        let totalAmount = 0
+
+        for (const booking of bookings) {
+            totalAmount += calculateTotalAmount(booking)
+        }
+
+        return totalAmount
+    }
+
+    const totalAmount = calculateTotalAmountForAllBookings(list)
+
+    const contentRendering = () => {
+        let content = ''
+        if (!list.length) {
+            content = `Are you sure you want to ${dialogType === 'block' ? 'block' : dialogType === 'unblock' && 'unblock'} this service provider?`
+        }
+        else {
+            content = `If you want to block this service provider, you have to refund €${totalAmount} against the ${list.length} inprogress services. Are you sure you want to block this service provider?`
+        }
+        return content
+    }
+
     const blockUnblockContent = () => {
         return (
             <React.Fragment>
@@ -93,7 +131,7 @@ const Index = () => {
                         {dialogType === 'block' ? 'Block' : dialogType === 'unblock' && 'Unblock'}
                     </h3>
                     <p>
-                        Are you sure you want to {dialogType === 'block' ? 'block' : dialogType === 'unblock' && 'unblock'} this service provider?
+                        {contentRendering()}
                     </p>
                 </div>
 
@@ -130,6 +168,11 @@ const Index = () => {
         const selectedTabText = subCategoriesByCategory[value]
         const filteredServicesBySubCategories = servicesByCategory.filter(service => service.subCategories.split(" ")[0].toLowerCase() === selectedTabText.toLowerCase())
         setServicesBySubCategories(filteredServicesBySubCategories)
+    }
+
+    const refundPolicy = (id, isBoolean, option) => {
+        setDialogType(option)
+        setDialogOpen(isBoolean)
     }
 
     const handleTabChange = (event, newValue) => {
@@ -206,8 +249,7 @@ const Index = () => {
                                     type='button'
                                     className='block-btn'
                                     onClick={() => {
-                                        setDialogOpen(true)
-                                        setDialogType('block')
+                                        dispatch(serviceProviderBookingDetails({ data: updatedPayload, successCallBack: refundPolicy }))
                                     }}
                                 >
                                     Block

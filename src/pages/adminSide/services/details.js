@@ -103,8 +103,8 @@ const Index = () => {
                             <div className='details-content_pricePerHour'>
                                 <p>Service hours:</p>
                                 <div>
-                                    <span className='hour'>7*€{data.price} = </span>
-                                    <span className='total'>€140</span>
+                                    <span className='hour'>{data.hours}*€{data.price} = </span>
+                                    <span className='total'>€{data.hours * data.price}</span>
                                 </div>
                             </div>
                         )}

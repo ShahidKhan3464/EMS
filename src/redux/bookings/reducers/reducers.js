@@ -1,5 +1,5 @@
 import { locations } from "utils";
-import { BOOKINGS_REQUEST, BOOKINGS_SUCCESS, BOOKINGS_FAIL, BOOKINGS_RESET, BOOKING_DETAILS_REQUEST, BOOKING_DETAILS_SUCCESS, BOOKING_DETAILS_FAIL, BOOKING_DETAILS_RESET } from "../types";
+import { BOOKINGS_REQUEST, BOOKINGS_SUCCESS, BOOKINGS_FAIL, BOOKINGS_RESET, BOOKING_DETAILS_REQUEST, BOOKING_DETAILS_SUCCESS, BOOKING_DETAILS_FAIL, BOOKING_DETAILS_RESET, BOOKING_REFUND_REQUEST, BOOKING_REFUND_SUCCESS, BOOKING_REFUND_FAIL, BOOKING_REFUND_RESET } from "../types";
 
 //Options
 const serviceCategory = [
@@ -10,13 +10,9 @@ const serviceCategory = [
     { value: 'entertainment', text: 'Entertainment' },
 ]
 
-const priceRange = [
-
-]
-
 const status = [
     { value: 'completed', text: 'Completed' },
-    { value: 'in progress', text: 'In progress' },
+    { value: 'in_progress', text: 'In progress' },
 ]
 
 //Initial States
@@ -27,7 +23,6 @@ const listState = {
         status,
         list: [],
         locations,
-        priceRange,
         totalRecords: 0,
         serviceCategory,
     }
@@ -35,6 +30,12 @@ const listState = {
 
 const detailsState = {
     data: {},
+    error: null,
+    loading: false,
+}
+
+const refundState = {
+    message: '',
     error: null,
     loading: false,
 }
@@ -64,6 +65,20 @@ export const details = (state = detailsState, action) => {
             return { ...state, loading: false, data: {} }
         case BOOKING_DETAILS_RESET:
             return { ...state, data: {} }
+        default: return state
+    }
+}
+
+export const refund = (state = refundState, action) => {
+    switch (action.type) {
+        case BOOKING_REFUND_REQUEST:
+            return { ...state, loading: true }
+        case BOOKING_REFUND_SUCCESS:
+            return { ...state, loading: false, message: action.payload }
+        case BOOKING_REFUND_FAIL:
+            return { ...state, loading: false, message: "" }
+        case BOOKING_REFUND_RESET:
+            return { ...state, message: "" }
         default: return state
     }
 }

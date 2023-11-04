@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { StyledBookedServices } from './style';
 import { StyledNoResultsFound } from 'styles/global';
 
-const Index = ({ id, rating, totalReviews, booking }) => {
+const Index = ({ id, booking }) => {
     const navigate = useNavigate()
     const noResultsFound = booking.length === 0
 

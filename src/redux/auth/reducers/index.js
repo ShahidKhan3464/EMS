@@ -1,8 +1,11 @@
 import { combineReducers } from 'redux';
-import { adminSignIn } from './reducers';
+import { adminSignIn, forgotPassword, verifyOtp, resetPassword } from './reducers';
 
 const authReducers = combineReducers({
-    adminSignIn
+    adminSignIn,
+    forgotPassword,
+    verifyOtp,
+    resetPassword
 })
 
 export default authReducers

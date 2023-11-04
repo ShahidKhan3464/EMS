@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import { mainColor } from 'styles/global';
 import { Document, Page, StyleSheet, View, Text, Font } from '@react-pdf/renderer';
 
@@ -58,7 +59,7 @@ const styles = StyleSheet.create({
                 borderBottom: `1px solid #E0E0E0`,
 
                 td: {
-                    width: '13%',
+                    width: '10%',
                     fontSize: '8px',
                     fontStyle: 'normal',
                     fontWeight: 'Normal',
@@ -72,6 +73,12 @@ const styles = StyleSheet.create({
 
 const Index = ({ data }) => {
 
+    const getDateFormat = (dataStr) => {
+        const originalDate = moment(dataStr)
+        const formattedDate = originalDate.format("DD MMM YYYY hh.mm A")
+        return formattedDate
+    }
+
     return (
         <Document>
             <Page style={styles.page} >
@@ -79,26 +86,26 @@ const Index = ({ data }) => {
 
                 <View style={styles.table}>
                     <View style={styles.table.thead}>
-                        <View style={{ width: '13%' }}>
+                        <View style={{ width: '10%' }}>
                             <Text>Transaction id</Text>
                         </View>
-                        <View style={{ width: '13%' }}>
+                        <View style={{ width: '12%' }}>
                             <Text>Customer name</Text>
                         </View>
-                        <View style={{ width: '13%' }}>
+                        <View style={{ width: '12%' }}>
                             <Text>Service provider</Text>
                         </View>
-                        <View style={{ width: '20%' }}>
+                        <View style={{ width: '15%' }}>
                             <Text>Advance payments</Text>
                         </View>
-                        <View style={{ width: '13%' }}>
+                        <View style={{ width: '10%' }}>
                             <Text>Price</Text>
                         </View>
-                        <View style={{ width: '13%' }}>
-                            <Text>Date</Text>
+                        <View style={{ width: '15%' }}>
+                            <Text>Date & Time</Text>
                         </View>
-                        <View style={{ width: '13%' }}>
-                            <Text>Time</Text>
+                        <View style={{ width: '10%' }}>
+                            <Text>Platform fee</Text>
                         </View>
                     </View>
 
@@ -110,25 +117,25 @@ const Index = ({ data }) => {
                                     style={styles.table.tbody.tr}
                                 >
                                     <View style={styles.table.tbody.tr.td}>
-                                        <Text>{item.id}</Text>
+                                        <Text>{item.transactionId}</Text>
                                     </View>
                                     <View style={styles.table.tbody.tr.td}>
-                                        <Text>{item.name}</Text>
+                                        <Text>{item.customerName}</Text>
                                     </View>
                                     <View style={styles.table.tbody.tr.td}>
-                                        <Text>{item.serPro}</Text>
+                                        <Text>{item.providerName}</Text>
                                     </View>
                                     <View style={styles.table.tbody.tr.td}>
-                                        <Text>{item.advance} advance</Text>
+                                        <Text>{item.advancePaymentPercentage}% advance</Text>
                                     </View>
                                     <View style={styles.table.tbody.tr.td}>
                                         <Text>€{item.price}</Text>
                                     </View>
                                     <View style={styles.table.tbody.tr.td}>
-                                        <Text>{item.date}</Text>
+                                        <Text>{getDateFormat(item.date)}</Text>
                                     </View>
                                     <View style={styles.table.tbody.tr.td}>
-                                        <Text>{item.time}</Text>
+                                        <Text>€{item.platformFee}</Text>
                                     </View>
                                 </View>
                             )

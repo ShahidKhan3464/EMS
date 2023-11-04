@@ -1,20 +1,27 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { Icons } from 'assets';
 import { StyledCards } from './style';
 import { normalGrey } from 'styles/global';
+import { shortestFormatNumber } from 'utils';
 import Skeleton from '@mui/material/Skeleton';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { cardCounter } from 'redux/cardsCounter/actions';
 
 const Index = () => {
+    const dispatch = useDispatch()
     const navigate = useNavigate()
-    const [loading, setLoading] = useState(false)
+    const { data, loading } = useSelector((state) => state.cardCounterReducers.cardCounter)
+
+    useEffect(() => {
+        dispatch(cardCounter())
+    }, [dispatch])
 
     return (
         <StyledCards>
             {loading ? (
                 <Skeleton
                     height={120}
-                    animation="wave"
                     sx={{ bgcolor: normalGrey }}
                 />
             ) : (
@@ -23,7 +30,7 @@ const Index = () => {
                     onClick={() => navigate('/services')}
                 >
                     <div className='card_detail'>
-                        <p>200</p>
+                        <p>{data?.servicesCount}</p>
                         <h3>Services</h3>
                     </div>
                     <div className='card_icon'>
@@ -35,13 +42,12 @@ const Index = () => {
             {loading ? (
                 <Skeleton
                     height={120}
-                    animation="wave"
                     sx={{ bgcolor: normalGrey }}
                 />
             ) : (
                 <div className='card' onClick={() => navigate('/bookings')}>
                     <div className='card_detail'>
-                        <p>300</p>
+                        <p>{data?.bookedServiceCount}</p>
                         <h3>Booked services</h3>
                     </div>
                     <div className='card_icon'>
@@ -53,14 +59,13 @@ const Index = () => {
             {loading ? (
                 <Skeleton
                     height={120}
-                    animation="wave"
                     sx={{ bgcolor: normalGrey }}
                 />
             ) : (
                 <div className='card' onClick={() => navigate('/earnings')}>
                     <div className='card_detail'>
-                        <p>$3.9k</p>
-                        <h3>Total Revenue</h3>
+                        <p>${shortestFormatNumber(data?.totalRevenue)}</p>
+                        <h3>Total revenue</h3>
                     </div>
                     <div className='card_icon'>
                         <img src={Icons.totalRevenue} alt='totalRevenue' />

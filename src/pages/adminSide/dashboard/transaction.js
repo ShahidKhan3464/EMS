@@ -1,31 +1,26 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import moment from 'moment';
 import { Icons } from 'assets';
+import { payloadData } from 'utils';
 import Table from '@mui/material/Table';
 import Paper from '@mui/material/Paper';
 import TableRow from '@mui/material/TableRow';
 import Skeleton from '@mui/material/Skeleton';
 import TableBody from '@mui/material/TableBody';
 import TableHead from '@mui/material/TableHead';
+import { useDispatch, useSelector } from 'react-redux';
 import TableContainer from '@mui/material/TableContainer';
+import { transactionsList } from 'redux/transactions/actions';
 import { StyledTableCell, StyledTableRow, normalGrey } from 'styles/global';
 
-function createData(transactionId, name, amount, date) {
-    return { transactionId, name, amount, date }
-}
-
-const rows = [
-    createData('#3265', 'Harry Porter', '$100', '25 Jun 2023'),
-    createData('#3265', 'Harry Porter', '$100', '25 Jun 2023'),
-    createData('#3265', 'Harry Porter', '$100', '25 Jun 2023'),
-    createData('#3265', 'Harry Porter', '$100', '25 Jun 2023'),
-    createData('#3265', 'Harry Porter', '$100', '25 Jun 2023'),
-    createData('#3265', 'Harry Porter', '$100', '25 Jun 2023'),
-    createData('#3265', 'Harry Porter', '$100', '25 Jun 2023'),
-    createData('#3265', 'Harry Porter', '$100', '25 Jun 2023'),
-]
-
 const Index = () => {
-    const [loading, setLoading] = useState(false)
+    const dispatch = useDispatch()
+    const { loading, data } = useSelector((state) => state.transactionsReducers.list)
+    const { list } = data
+
+    useEffect(() => {
+        dispatch(transactionsList(payloadData))
+    }, [dispatch])
 
     return (
         <TableContainer
@@ -52,7 +47,6 @@ const Index = () => {
                                 {Array.from({ length: 4 }, (_, colIndex) => (
                                     <StyledTableCell key={colIndex}>
                                         <Skeleton
-                                            animation="wave"
                                             sx={{ bgcolor: normalGrey }}
                                         />
                                     </StyledTableCell>
@@ -60,9 +54,9 @@ const Index = () => {
                             </TableRow>
                         ))
                     ) : (
-                        rows.slice(0, 6).map((item, index) => (
+                        list.map((item, index) => (
                             <StyledTableRow key={index}>
-                                <StyledTableCell>{item.transactionId}</StyledTableCell>
+                                <StyledTableCell>#{item.transactionId}</StyledTableCell>
                                 <StyledTableCell>
                                     <div
                                         style={{
@@ -77,11 +71,11 @@ const Index = () => {
                                                 src={Icons.avatar2}
                                             />
                                         </div>
-                                        {item.name}
+                                        {item.customerName}
                                     </div>
                                 </StyledTableCell>
-                                <StyledTableCell align='center'>{item.amount}</StyledTableCell>
-                                <StyledTableCell align='center'>{item.date}</StyledTableCell>
+                                <StyledTableCell align='center'>€{item.price}</StyledTableCell>
+                                <StyledTableCell align='center'>{moment(item.date).format('DD MMM YYYY')}</StyledTableCell>
                             </StyledTableRow>
                         ))
                     )}

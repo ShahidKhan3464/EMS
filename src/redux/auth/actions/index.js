@@ -1,3 +1,3 @@
-import { adminSignIn } from './actions';
+import { adminSignIn, forgotPassword, verifyOtp, resetPassword } from './actions';
 
-export { adminSignIn }
+export { adminSignIn, forgotPassword, verifyOtp, resetPassword }

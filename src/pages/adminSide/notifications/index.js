@@ -154,7 +154,6 @@ const Index = () => {
                                             <h3 className='title'>{capitalizeFirstLetter(item.title)}</h3>
                                             <p className='message'>
                                                 {item.message}
-                                                {/* <span>Jhon Doe</span> */}
                                             </p>
                                         </div>
                                     </div>

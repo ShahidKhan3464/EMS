@@ -187,28 +187,33 @@ const Index = ({ data }) => {
                 <View style={styles.content}>
                     <View style={styles.content.body}>
                         <Text style={styles.content.body.heading}>Transaction receipt</Text>
-                        <Text style={styles.content.body.amount}>€100</Text>
+                        <Text style={styles.content.body.amount}>€{data?.price}</Text>
 
                         <View style={styles.content.body.trscHistory}>
                             <View style={styles.content.body.trscHistory.detail}>
                                 <View style={styles.content.body.trscHistory.detail.layout}>
                                     <Text style={styles.content.body.trscHistory.detail.layout.key}>Transaction id</Text>
-                                    <Text style={styles.content.body.trscHistory.detail.layout.value}>{data.id}</Text>
+                                    <Text style={styles.content.body.trscHistory.detail.layout.value}>{data?.transactionId}</Text>
                                 </View>
 
                                 <View style={styles.content.body.trscHistory.detail.layout}>
                                     <Text style={styles.content.body.trscHistory.detail.layout.key}>Service provider name</Text>
-                                    <Text style={styles.content.body.trscHistory.detail.layout.value}>{data.serPro}</Text>
+                                    <Text style={styles.content.body.trscHistory.detail.layout.value}>{data?.providerName}</Text>
                                 </View>
 
                                 <View style={styles.content.body.trscHistory.detail.layout}>
                                     <Text style={styles.content.body.trscHistory.detail.layout.key}>Service name</Text>
-                                    <Text style={styles.content.body.trscHistory.detail.layout.value}>Musicholic</Text>
+                                    <Text style={styles.content.body.trscHistory.detail.layout.value}>{data?.serviceName}</Text>
                                 </View>
 
                                 <View style={styles.content.body.trscHistory.detail.layout}>
                                     <Text style={styles.content.body.trscHistory.detail.layout.key}>Customer name</Text>
-                                    <Text style={styles.content.body.trscHistory.detail.layout.value}>{data.name}</Text>
+                                    <Text style={styles.content.body.trscHistory.detail.layout.value}>{data?.customerName}</Text>
+                                </View>
+
+                                <View style={styles.content.body.trscHistory.advancePayment.layout}>
+                                    <Text style={styles.content.body.trscHistory.advancePayment.layout.key}>Platform received amount</Text>
+                                    <Text style={styles.content.body.trscHistory.advancePayment.layout.value}>€{data?.platformFee}</Text>
                                 </View>
 
                                 <View style={styles.content.body.trscHistory.detail.layout}>
@@ -218,20 +223,22 @@ const Index = ({ data }) => {
 
                                 <View style={styles.content.body.trscHistory.detail.layout}>
                                     <Text style={styles.content.body.trscHistory.detail.layout.key}>Time</Text>
-                                    <Text style={styles.content.body.trscHistory.detail.layout.value}>{moment(data?.date, 'HH:mm').format('hh:mm A')}</Text>
+                                    <Text style={styles.content.body.trscHistory.detail.layout.value}>{moment(data?.date).format('hh:mm A')}</Text>
                                 </View>
                             </View>
 
-                            <View style={styles.content.body.trscHistory.advancePayment}>
-                                <View style={styles.content.body.trscHistory.advancePayment.layout}>
-                                    <Text style={styles.content.body.trscHistory.advancePayment.layout.key}>Advance payment</Text>
-                                    <Text style={styles.content.body.trscHistory.advancePayment.layout.value}>5% ($15)</Text>
+                            {data?.isAdvance && (
+                                <View style={styles.content.body.trscHistory.advancePayment}>
+                                    <View style={styles.content.body.trscHistory.advancePayment.layout}>
+                                        <Text style={styles.content.body.trscHistory.advancePayment.layout.key}>Advance payment</Text>
+                                        <Text style={styles.content.body.trscHistory.advancePayment.layout.value}>{data?.advancePaymentPercentage}%</Text>
+                                    </View>
+                                    <View style={styles.content.body.trscHistory.advancePayment.layout}>
+                                        <Text style={styles.content.body.trscHistory.advancePayment.layout.key}>Payable amount</Text>
+                                        <Text style={styles.content.body.trscHistory.advancePayment.layout.value}>€{data?.payableAmount}</Text>
+                                    </View>
                                 </View>
-                                <View style={styles.content.body.trscHistory.advancePayment.layout}>
-                                    <Text style={styles.content.body.trscHistory.advancePayment.layout.key}>Platform received amount</Text>
-                                    <Text style={styles.content.body.trscHistory.advancePayment.layout.value}>$10</Text>
-                                </View>
-                            </View>
+                            )}
 
                             <View style={styles.content.body.trscHistory.todayDate}>
                                 <Text style={styles.content.body.trscHistory.todayDate.value}>{moment().format('DD MMM YYYY')}</Text>

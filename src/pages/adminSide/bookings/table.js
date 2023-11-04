@@ -18,6 +18,9 @@ const Index = ({ payload, data, loading, totalRecords, setPayload }) => {
     const noResultsFound = totalRecords === 0
 
     const getStatus = (str) => {
+        if (str.toLowerCase() === 'in_progress') {
+            return str
+        }
         return str.split("_")[0]
     }
 
@@ -73,7 +76,7 @@ const Index = ({ payload, data, loading, totalRecords, setPayload }) => {
                                         onClick={() => navigate(`/booking/viewDetails/${item.id}`)}
                                     >
                                         <StyledTableCell>#{item.uniqueId?.split("-")[0]}</StyledTableCell>
-                                        <StyledTableCell>{item.providerService.categories}</StyledTableCell>
+                                        <StyledTableCell>{capitalizeFirstLetter(item.providerService.categories)}</StyledTableCell>
                                         <StyledTableCell>{truncatedString(capitalizeFirstLetter(item.providerService.name))}</StyledTableCell>
                                         <StyledTableCell>
                                             <div

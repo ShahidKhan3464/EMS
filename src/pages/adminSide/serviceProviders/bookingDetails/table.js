@@ -10,6 +10,7 @@ import LoaderContainer from 'components/loader';
 import NoResultsFound from 'components/noResultsFound';
 import TableContainer from '@mui/material/TableContainer';
 import { StyledTableCell, StyledTableRow } from 'styles/global';
+import { capitalizeFirstLetter } from 'utils';
 
 const Index = ({ payload, data, loading, totalRecords, setPayload }) => {
     const navigate = useNavigate()
@@ -64,11 +65,11 @@ const Index = ({ payload, data, loading, totalRecords, setPayload }) => {
                                         key={index}
                                         onClick={() => navigate(`/booking/viewDetails/${item.id}`)}
                                     >
-                                        <StyledTableCell>{item.uniqueId}</StyledTableCell>
+                                        <StyledTableCell>#{item.uniqueId}</StyledTableCell>
                                         <StyledTableCell>{name}</StyledTableCell>
-                                        <StyledTableCell>{item.providerService.categories}</StyledTableCell>
+                                        <StyledTableCell>{capitalizeFirstLetter(item.providerService.categories)}</StyledTableCell>
                                         <StyledTableCell>{item.providerService.name}</StyledTableCell>
-                                        <StyledTableCell>{item.providerService.price}</StyledTableCell>
+                                        <StyledTableCell>€{item.providerService.price}</StyledTableCell>
                                     </StyledTableRow>
                                 )
                             })

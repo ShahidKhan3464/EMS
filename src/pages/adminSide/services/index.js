@@ -10,7 +10,9 @@ import { StyledMainHeading } from 'styles/global';
 import { servicesList } from 'redux/services/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import TableSearchHandler from 'components/searchField';
+import PriceRangeButton from 'components/priceRangeBtn';
 import { capitalizeFirstLetter, payloadData } from 'utils';
+import PriceRangeContent from 'components/priceRangeContent';
 
 const activeOptions = [{ value: 'active', text: 'Active' }, { value: 'view reason', text: 'View reason' }]
 const unActiveOptions = [{ value: 'inactive', text: 'In active' }]
@@ -24,7 +26,8 @@ const Index = () => {
     const [payload, setPayload] = useState(payloadData)
     const [resetFilter, setResetFilter] = useState(false)
     const { loading, data } = useSelector((state) => state.servicesReducers.list)
-    const { totalRecords, list, locations, serviceCategory, rating, priceRange, status } = data
+    const [priceRange, setPriceRange] = useState({ isSelect: false, values: null })
+    const { totalRecords, list, locations, serviceCategory, rating, status } = data
     const [filter, setFilter] = useState({
         status: '',
         rating: '',
@@ -77,17 +80,28 @@ const Index = () => {
                         defaultValue="Service category"
                         handleFilterChange={handleFilterChange}
                     />
+                    <PriceRangeButton
+                        priceRange={priceRange.values}
+                        clicked={() => setPriceRange({ ...priceRange, isSelect: true })}
+                        setPriceRange={() => setPriceRange({ ...priceRange, values: null })}
+                    />
+                    {priceRange.isSelect && (
+                        <PriceRangeContent
+                            setPriceRange={(data) => {
+                                setPriceRange({ isSelect: false, values: data ? data : null })
+                                setPayload(prevData => ({
+                                    ...prevData,
+                                    page: 1,
+                                    pageSize: 5
+                                }))
+                            }}
+                        />
+                    )}
                     <Dropdown
                         resetFilter={resetFilter}
                         name="rating"
                         options={rating}
                         defaultValue="Rating"
-                        handleFilterChange={handleFilterChange}
-                    />
-                    <Dropdown
-                        name="price"
-                        options={priceRange}
-                        defaultValue="Price range"
                         handleFilterChange={handleFilterChange}
                     />
                     {value === 0 && (
@@ -126,6 +140,7 @@ const Index = () => {
             service: '',
             location: '',
         })
+        setPriceRange({ isSelect: false, values: null })
     }
 
     const buildCondition = (value, searchValue) => {
@@ -138,7 +153,7 @@ const Index = () => {
 
         if (filter) {
             if (filter.serviceCategory) {
-                condition.categories = capitalizeFirstLetter(filter.serviceCategory)
+                condition.categories = filter.serviceCategory.toUpperCase()
             }
 
             if (filter.rating) {
@@ -148,6 +163,10 @@ const Index = () => {
             if (filter.status) {
                 condition.unavailable = filter.status !== 'available'
             }
+
+            if (filter.location) {
+                condition.city = capitalizeFirstLetter(filter.location)
+            }
         }
 
         if (searchValue) {
@@ -155,9 +174,11 @@ const Index = () => {
             return [condition]
         }
 
-        else {
-            return condition
+        if (priceRange.values) {
+            condition.price = { $Between: priceRange.values.from + "," + priceRange.values.to }
         }
+
+        return condition
     }
 
     const delayedAPICallForSearch = (updatedPayload) => {
@@ -218,7 +239,7 @@ const Index = () => {
 
         return () => { clearTimeout(searchDebounceTimerRef.current) }
 
-    }, [value, filter, payload, dispatch])
+    }, [priceRange.values, value, filter, payload, dispatch])
 
     return (
         <LayoutContent>

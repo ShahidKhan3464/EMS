@@ -312,20 +312,43 @@ export const StyledBookedServiceDetails = styled.div`
     .header {
         gap: 10px;
         display: flex;
+        flex-wrap: wrap;
+        align-items: center;
         margin-bottom: 24px;
-        justify-content: flex-end;
-        flex-direction: row-reverse;
+        justify-content: space-between;
 
         @media screen and (max-width: 520px) {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
-        button {
-            padding: 0;
+        >div {
+            gap: 10px;
+            display: flex;
+            justify-content: flex-end;
+            flex-direction: row-reverse;
+
+            button {
+                padding: 0;
+                border: none;
+                outline: none;
+                cursor: pointer;
+                background: transparent;
+            }
+        }
+        
+        .refund-btn {
             border: none;
-            outline: none;
+            color: #F9FAFB;
+            font-size: 13px;
             cursor: pointer;
-            background: transparent;
+            font-weight: 500;
+            padding: 8px 16px;
+            line-height: 18px;
+            font-style: normal;
+            border-radius: 6px;
+            font-family: Poppins;
+            letter-spacing: -0.01px;
+            background: ${mainColor};
         }
     }
 

@@ -1,15 +1,18 @@
 import React from 'react';
 import { Icons } from 'assets';
-import ViewReceipt from './receipt';
 import Dialog from '@mui/material/Dialog';
+import ViewReceipt from 'components/viewReceipt';
 import IconButton from '@mui/material/IconButton';
 
-const Index = ({ open, data, setOpen }) => {
+const Index = ({ id, open, setId, setOpen }) => {
 
     return (
         <Dialog
             open={open}
-            onClose={() => setOpen(false)}
+            onClose={() => {
+                setId(null)
+                setOpen(false)
+            }}
             PaperProps={{
                 style: {
                     width: '100%',
@@ -22,7 +25,6 @@ const Index = ({ open, data, setOpen }) => {
         >
             <IconButton
                 aria-label="close"
-                onClick={() => setOpen(false)}
                 sx={{
                     top: 16,
                     right: 16,
@@ -33,10 +35,14 @@ const Index = ({ open, data, setOpen }) => {
                         right: 8,
                     }
                 }}
+                onClick={() => {
+                    setId(null)
+                    setOpen(false)
+                }}
             >
                 <img src={Icons.popUpCross} alt='cross-icon' />
             </IconButton>
-            <ViewReceipt data={data} />
+            <ViewReceipt id={id} />
         </Dialog>
     )
 }

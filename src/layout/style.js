@@ -15,7 +15,6 @@ export const LayoutContainer = styled.div`
     }
 
     @media screen and (max-width: 520px) {
-        /* grid-template-columns: ${props => props.isSidebarVisible ? '280px calc(100% - 280px)' : '100%'}; */
         grid-template-columns: ${props => props.isSidebarVisible ? '230px' : '100%'};
     }
 
@@ -68,6 +67,7 @@ export const LayoutContainer = styled.div`
                     gap: 16px;
                     display: flex;
                     flex-wrap: wrap;
+                    position: relative;
                     align-items: center;
                     
                     @media screen and (max-width: 520px) {

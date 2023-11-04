@@ -19,8 +19,8 @@ import TableContainer from '@mui/material/TableContainer';
 import ReasonOfBlockingForm from '../reasonOfBlockingForm';
 import CircularProgress from '@mui/material/CircularProgress';
 import { capitalizeFirstLetter, statusColors, truncatedString } from 'utils';
-import { serviceProviderBlockUnBlock } from 'redux/serviceProviders/actions';
 import { StyledTableCell, StyledTableRow, StyledStatus } from 'styles/global';
+import { serviceProviderBlockUnBlock, serviceProviderBookingDetails } from 'redux/serviceProviders/actions';
 
 const Index = ({ payload, data, value, options, loading, totalRecords, setPayload }) => {
     const navigate = useNavigate()
@@ -30,7 +30,40 @@ const Index = ({ payload, data, value, options, loading, totalRecords, setPayloa
     const noResultsFound = totalRecords === 0
     const [dialogType, setDialogType] = useState(null)
     const [dialogOpen, setDialogOpen] = useState(false)
+    const { list } = useSelector((state) => state.serviceProvidersReducers.bookingDetails.data)
     const { loading: statusLoading } = useSelector((state) => state.serviceProvidersReducers.blockUnblock)
+
+    const calculateTotalAmount = (booking) => {
+        if (booking.providerService.pricingOption === "PER_HOUR") {
+            return booking.providerService.price * booking.providerService.hours
+        }
+        else {
+            return booking.providerService.price
+        }
+    }
+
+    const calculateTotalAmountForAllBookings = (bookings) => {
+        let totalAmount = 0
+
+        for (const booking of bookings) {
+            totalAmount += calculateTotalAmount(booking)
+        }
+
+        return totalAmount
+    }
+
+    const totalAmount = calculateTotalAmountForAllBookings(list)
+
+    const contentRendering = () => {
+        let content = ''
+        if (!list.length) {
+            content = `Are you sure you want to ${dialogType === 'block' ? 'block' : dialogType === 'unblock' && 'unblock'} this service provider?`
+        }
+        else {
+            content = `If you want to block this service provider, you have to refund €${totalAmount} against the ${list.length} inprogress services. Are you sure you want to block this service provider?`
+        }
+        return content
+    }
 
     const blockUnblockContent = () => {
         return (
@@ -44,7 +77,7 @@ const Index = ({ payload, data, value, options, loading, totalRecords, setPayloa
                         {dialogType === 'block' ? 'Block' : dialogType === 'unblock' && 'Unblock'}
                     </h3>
                     <p>
-                        Are you sure you want to {dialogType === 'block' ? 'block' : dialogType === 'unblock' && 'unblock'} this service provider?
+                        {contentRendering()}
                     </p>
                 </div>
 
@@ -97,6 +130,12 @@ const Index = ({ payload, data, value, options, loading, totalRecords, setPayloa
         return !availability ? 'AVAILABLE' : 'UNAVAILABLE'
     }
 
+    const refundPolicy = (id, isBoolean, option) => {
+        setId(id)
+        setDialogType(option)
+        setDialogOpen(isBoolean)
+    }
+
     const handleChangePage = (event, newPage) => {
         setPayload(prevData => ({
             ...prevData,
@@ -113,10 +152,12 @@ const Index = ({ payload, data, value, options, loading, totalRecords, setPayloa
     }
 
     const handleTableMenu = (id, option, reason) => {
+        const updatedPayload = {
+            ...payload,
+            condition: { bookedState: "IN_PROGRESS", providerService: { user: { id } } }
+        }
         if (option === 'block') {
-            setId(id)
-            setDialogOpen(true)
-            setDialogType(option)
+            dispatch(serviceProviderBookingDetails({ data: updatedPayload, successCallBack: refundPolicy }))
         }
 
         else if (option === 'unblock') {
@@ -216,7 +257,7 @@ const Index = ({ payload, data, value, options, loading, totalRecords, setPayloa
                                                 {truncatedString(capitalizeFirstLetter(name))}
                                             </div>
                                         </StyledTableCell>
-                                        <StyledTableCell>{item.providerService[0]?.categories}</StyledTableCell>
+                                        <StyledTableCell>{capitalizeFirstLetter(item.providerService[0]?.categories)}</StyledTableCell>
                                         <StyledTableCell>{truncatedString(item.profile?.address)}</StyledTableCell>
                                         <StyledTableCell>
                                             <div className='rating'>
@@ -226,7 +267,6 @@ const Index = ({ payload, data, value, options, loading, totalRecords, setPayloa
                                                 />
                                                 <p className='rating-text'>
                                                     {item.rating.toFixed(2)}
-                                                    {/* based on 250 reviews */}
                                                 </p>
                                             </div>
                                         </StyledTableCell>

@@ -1,8 +1,10 @@
 import { combineReducers } from 'redux';
-import { list } from './reducers';
+import { list, details, revenue } from './reducers';
 
 const transactionsReducers = combineReducers({
     list,
+    details,
+    revenue
 })
 
 export default transactionsReducers

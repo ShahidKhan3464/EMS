@@ -68,6 +68,11 @@ export const StyledPaginationContainer = styled.div`
                 color: #FFFFFF;
                 background: ${mainColor};
             }
+
+            .MuiPaginationItem-ellipsis {
+                color: #6D6D6E;
+                font-weight: 700;
+            }
         }   
     }
 `

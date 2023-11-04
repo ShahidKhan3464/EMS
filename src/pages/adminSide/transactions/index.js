@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Table from './table';
+import moment from 'moment';
 import * as XLSX from 'xlsx';
 import { Icons } from 'assets';
 import LayoutContent from 'layout';
@@ -13,7 +14,6 @@ import Radio from '@mui/material/Radio';
 import { pdf } from '@react-pdf/renderer';
 import DatePicker from "react-datepicker";
 import Dropdown from 'components/dropDown';
-import { useNavigate } from 'react-router-dom';
 import TransactionsPdf from './transactionPdf';
 import { useMediaQuery } from 'react-responsive';
 import RadioGroup from '@mui/material/RadioGroup';
@@ -30,9 +30,9 @@ const radiosButton = [
 ]
 
 const Index = () => {
-    const navigate = useNavigate()
     const dispatch = useDispatch()
     const [value, setValue] = useState(0)
+    const searchDebounceTimerRef = useRef(null)
     const [selected, setSelected] = useState([])
     const [selectDate, setSelectDate] = useState()
     const isMobile = useMediaQuery({ maxWidth: 520 })
@@ -41,10 +41,9 @@ const Index = () => {
     const [dialogOpen, setDialogOpen] = useState(false)
     const [exportValue, setExportValue] = useState('xlsx')
     const { loading, data } = useSelector((state) => state.transactionsReducers.list)
-    const { totalRecords, list, priceRange, advancePayments } = data
+    const { totalRecords, list, advancePayments } = data
     const [filter, setFilter] = useState({
-        price: '',
-        advancePayments: '',
+        advancePaymentPercentage: '',
     })
 
     const TabPanel = (props) => {
@@ -154,6 +153,7 @@ const Index = () => {
                     <StyledDatepickerContainer selectDate={selectDate}>
                         <DatePicker
                             isClearable
+                            maxDate={new Date()}
                             selected={selectDate}
                             placeholderText="Date"
                             dateFormat="d MMM yyyy"
@@ -161,14 +161,8 @@ const Index = () => {
                         />
                     </StyledDatepickerContainer>
                     <Dropdown
-                        name="price"
-                        options={priceRange}
-                        defaultValue="Price range"
-                        handleFilterChange={handleFilterChange}
-                    />
-                    <Dropdown
-                        name="advancePayments"
                         options={advancePayments}
+                        name="advancePaymentPercentage"
                         defaultValue="Advance payments"
                         handleFilterChange={handleFilterChange}
                     />
@@ -184,11 +178,46 @@ const Index = () => {
     const clearFilters = () => {
         setFilter({
             price: '',
-            advancePayments: '',
+            advancePaymentPercentage: '',
         })
     }
 
-    const handleSearchQueryChange = (value) => setSearchQuery(value.trim())
+    const buildCondition = (value, searchQuery) => {
+        const condition = {}
+
+        if (value === 1) {
+            condition.isAdvance = true
+        }
+
+        if (filter) {
+            if (filter.advancePaymentPercentage) {
+                condition.advancePaymentPercentage = filter.advancePaymentPercentage
+            }
+        }
+
+        if (selectDate) {
+            condition.date = moment(selectDate).format("YYYY-MM-DD")
+        }
+
+        if (searchQuery) {
+            condition.transactionId = { $ILike: searchQuery }
+        }
+
+        return condition
+    }
+
+    const delayedAPICallForSearch = (updatedPayload) => {
+        dispatch(transactionsList(updatedPayload))
+    }
+
+    const handleSearchQueryChange = (value) => {
+        setSearchQuery(value)
+        setPayload(prevData => ({
+            ...prevData,
+            page: 1,
+            pageSize: 5
+        }))
+    }
 
     const handleTabChange = (event, newValue) => {
         clearFilters()
@@ -203,18 +232,22 @@ const Index = () => {
 
     const handleFilterChange = (name, value) => {
         setFilter({ ...filter, [name]: value })
+        setPayload(prevData => ({
+            ...prevData,
+            page: 1,
+        }))
     }
 
     const handleExport = async () => {
         if (exportValue === 'xlsx') {
-            const xlsxData = selected.map(({ id, name, serPro, advance, price, date, time }) => ({
-                'Transaction id': id,
-                'Customer name': name,
-                'Service provider': serPro,
-                'Advance': `${advance} Advance`,
+            const xlsxData = selected.map(({ transactionId, customerName, providerName, advancePaymentPercentage, price, platformFee, date }) => ({
+                'Transaction id': transactionId,
+                'Customer name': customerName,
+                'Service provider': providerName,
+                'Advance': `${advancePaymentPercentage}% Advance`,
                 'Price': `€${price}`,
-                'Date': date,
-                'Time': time,
+                'Platform fee': `€${platformFee}`,
+                'Date & Time': moment(date).format("DD MMM YYYY hh.mm A")
             }))
 
             const xlsxHeaders = [
@@ -223,8 +256,8 @@ const Index = () => {
                 { label: "Service provider", key: "Service provider" },
                 { label: "Advance", key: "Advance" },
                 { label: "Price", key: "Price" },
-                { label: "Date", key: "Date" },
-                { label: "Time", key: "Time" }
+                { label: "Platform fee", key: "Platform fee" },
+                { label: "Date & Time", key: "Date & Time" },
             ]
 
             const xlsxFilename = 'transaction_data.xlsx'
@@ -275,20 +308,26 @@ const Index = () => {
         setExportValue('xlsx')
     }
 
-    // useEffect(() => {
-    //     const profileStatus = {
-    //         0: 'PENDING',
-    //         1: 'REJECTED',
-    //     }
-    //     const updatedPayload = {
-    //         ...payload,
-    //         condition: {
-    //             // profileApprovedStatus: profileStatus[value]
-    //         }
-    //     }
+    useEffect(() => {
+        const updatedPayload = {
+            ...payload,
+            condition: buildCondition(value, searchQuery)
+        }
 
-    //     dispatch(transactionsList(updatedPayload))
-    // }, [value, payload, dispatch])
+        if (searchQuery) {
+            clearTimeout(searchDebounceTimerRef.current)
+            searchDebounceTimerRef.current = setTimeout(() => {
+                delayedAPICallForSearch(updatedPayload)
+            }, 1000)
+        }
+
+        else {
+            dispatch(transactionsList(updatedPayload))
+        }
+
+        return () => { clearTimeout(searchDebounceTimerRef.current) }
+
+    }, [selectDate, value, filter, payload, dispatch])
 
     return (
         <LayoutContent>

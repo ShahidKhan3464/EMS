@@ -137,7 +137,7 @@ const Index = () => {
             const { serviceCategory, rating, location, status } = filter
 
             if (serviceCategory) {
-                condition.providerService = { categories: capitalizeFirstLetter(serviceCategory) }
+                condition.providerService = { categories: serviceCategory.toUpperCase() }
             }
 
             if (rating) {
@@ -148,7 +148,7 @@ const Index = () => {
                 condition.profile = condition.profile || {}
 
                 if (location) {
-                    condition.profile.address = location
+                    condition.profile.address = { $ILike: filter.location }
                 }
 
                 if (status) {
@@ -167,7 +167,7 @@ const Index = () => {
             }
 
             if (serviceCategory) {
-                fullNameCondition.providerService = { categories: capitalizeFirstLetter(serviceCategory) }
+                fullNameCondition.providerService = { categories: serviceCategory.toUpperCase() }
             }
 
             if (rating) {

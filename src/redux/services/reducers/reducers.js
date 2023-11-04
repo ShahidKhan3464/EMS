@@ -18,10 +18,6 @@ const rating = [
     { value: '5', text: '5 stars' },
 ]
 
-const priceRange = [
-
-]
-
 const status = [
     { value: 'available', text: 'Available' },
     { value: 'unavailable', text: 'Unavailable' },
@@ -36,7 +32,6 @@ const listState = {
         rating,
         list: [],
         locations,
-        priceRange,
         totalRecords: 0,
         serviceCategory,
     }

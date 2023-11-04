@@ -11,9 +11,10 @@ import { serviceProviderBlockUnBlock, serviceProviderDetails } from 'redux/servi
 const Index = ({ id, isDetailPage = null, setOpen, setPayload }) => {
     const dispatch = useDispatch()
     const { loading } = useSelector((state) => state.serviceProvidersReducers.blockUnblock)
+    const { list } = useSelector((state) => state.serviceProvidersReducers.bookingDetails.data)
 
     const handleSubmit = async ({ reasonOfBlock }) => {
-        const obj = { block: true, reasonOfBlock }
+        const obj = { block: true, reasonOfBlock, isRefundAll: !!list.length }
         await dispatch(serviceProviderBlockUnBlock(id, obj))
         if (!isDetailPage) {
             setOpen(false)

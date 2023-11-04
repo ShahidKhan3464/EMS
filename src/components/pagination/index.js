@@ -4,12 +4,6 @@ import { StyledPaginationContainer } from './style';
 
 const Index = ({ page, count, rowsPerPage, onPageChange, onRowsPerPageChange }) => {
 
-  // const pageOptions = []
-  // for (let i = 5; i <= count; i += 5) {
-  //   pageOptions.push(i)
-  // }
-  // pageOptions.push(count)
-
   return (
     <StyledPaginationContainer>
       <div className='left'>

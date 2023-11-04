@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import * as Yup from "yup";
 import { Form } from "antd";
 import { Icons } from 'assets';
 import { useNavigate } from 'react-router-dom';
 import StyledAuthBox from 'components/authBox';
 import TextFieldInput from 'components/inputField';
+import { forgotPassword } from 'redux/auth/actions';
 import { Formik, Field, ErrorMessage } from "formik";
+import { useDispatch, useSelector } from 'react-redux';
 import CircularProgress from '@mui/material/CircularProgress';
 import { PrimaryButton, FieldErrorMessage } from 'styles/global';
 
 const Index = () => {
+    const dispatch = useDispatch()
     const navigate = useNavigate()
-    const [loading, setLoading] = useState(false)
+    const { loading } = useSelector((state) => state.authReducers.forgotPassword)
 
     const suffix = (name, formik) => {
         return (
@@ -34,13 +37,10 @@ const Index = () => {
         )
     }
 
-    const handleSubmit = async (data) => {
-        try {
+    const moveRouter = (email) => { navigate("/verification", { state: email }) }
 
-        }
-        catch (error) {
-
-        }
+    const handleSubmit = (data) => {
+        dispatch(forgotPassword(data, moveRouter))
     }
 
     return (

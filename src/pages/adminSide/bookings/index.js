@@ -1,20 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Table from './table';
 import LayoutContent from 'layout';
+import { payloadData } from 'utils';
 import Dropdown from 'components/dropDown';
 import { StyledMainHeading } from 'styles/global';
 import { bookingsList } from 'redux/bookings/actions';
 import { useDispatch, useSelector } from 'react-redux';
+import PriceRangeButton from 'components/priceRangeBtn';
 import TableSearchHandler from 'components/searchField';
-import { capitalizeFirstLetter, payloadData } from 'utils';
+import PriceRangeContent from 'components/priceRangeContent';
 
 const Index = () => {
     const dispatch = useDispatch()
+    const searchDebounceTimerRef = useRef(null)
     const [searchQuery, setSearchQuery] = useState('')
     const [payload, setPayload] = useState(payloadData)
     const [resetFilter, setResetFilter] = useState(false)
     const { loading, data } = useSelector((state) => state.bookingsReducers.list)
-    const { totalRecords, list, locations, serviceCategory, priceRange, status } = data
+    const [priceRange, setPriceRange] = useState({ isSelect: false, values: null })
+    const { totalRecords, list, locations, serviceCategory, status } = data
     const [filter, setFilter] = useState({
         status: '',
         location: '',
@@ -22,20 +26,37 @@ const Index = () => {
     })
     const isAnyFilterValueAssigned = Object.values(filter).some(value => !!value)
 
-    const buildCondition = () => {
+    const buildCondition = (searchValue) => {
         const condition = {}
 
-        if (filter.serviceCategory) {
-            condition.providerService = { categories: capitalizeFirstLetter(filter.serviceCategory) }
+        if (filter) {
+            if (filter.serviceCategory) {
+                condition.providerService = { categories: filter.serviceCategory.toUpperCase() }
+            }
+
+            if (filter.status) {
+                condition.bookedState = filter.status.toUpperCase()
+            }
+
+            if (filter.location) {
+                condition.location = { $ILike: filter.location }
+            }
         }
 
-        // if (filter.location) {
-        //     condition.location = filter.location
-        // }
+        if (priceRange.values) {
+            if (!condition.providerService) {
+                condition.providerService = {}
+            }
 
-        // if (filter.status) {
-        //     condition.bookedState = filter.status.toUpperCase()
-        // }
+            condition.providerService.price = {
+                $Between: priceRange.values.from + "," + priceRange.values.to
+            }
+        }
+
+        if (searchValue) {
+            condition.uniqueId = { $ILike: searchValue }
+            return [condition]
+        }
 
         return condition
     }
@@ -46,9 +67,21 @@ const Index = () => {
             location: '',
             serviceCategory: '',
         })
+        setPriceRange({ isSelect: false, values: null })
     }
 
-    const handleSearchQueryChange = (value) => setSearchQuery(value.trim())
+    const delayedAPICallForSearch = (updatedPayload) => {
+        dispatch(bookingsList(updatedPayload))
+    }
+
+    const handleSearchQueryChange = (value) => {
+        setSearchQuery(value)
+        setPayload(prevData => ({
+            ...prevData,
+            page: 1,
+            pageSize: 5
+        }))
+    }
 
     const handleResetFilter = () => {
         clearFilters()
@@ -67,10 +100,23 @@ const Index = () => {
     useEffect(() => {
         const updatedPayload = {
             ...payload,
-            condition: buildCondition(),
+            condition: buildCondition(searchQuery),
         }
-        dispatch(bookingsList(updatedPayload))
-    }, [filter, payload, dispatch])
+
+        if (searchQuery) {
+            clearTimeout(searchDebounceTimerRef.current)
+            searchDebounceTimerRef.current = setTimeout(() => {
+                delayedAPICallForSearch(updatedPayload)
+            }, 1000)
+        }
+
+        else {
+            dispatch(bookingsList(updatedPayload))
+        }
+
+        return () => { clearTimeout(searchDebounceTimerRef.current) }
+
+    }, [priceRange.values, filter, payload, dispatch])
 
     return (
         <LayoutContent>
@@ -94,13 +140,23 @@ const Index = () => {
                             defaultValue="Service category"
                             handleFilterChange={handleFilterChange}
                         />
-                        <Dropdown
-                            name="price"
-                            options={priceRange}
-                            resetFilter={resetFilter}
-                            defaultValue="Price range"
-                            handleFilterChange={handleFilterChange}
+                        <PriceRangeButton
+                            priceRange={priceRange.values}
+                            clicked={() => setPriceRange({ ...priceRange, isSelect: true })}
+                            setPriceRange={() => setPriceRange({ ...priceRange, values: null })}
                         />
+                        {priceRange.isSelect && (
+                            <PriceRangeContent
+                                setPriceRange={(data) => {
+                                    setPriceRange({ isSelect: false, values: data ? data : null })
+                                    setPayload(prevData => ({
+                                        ...prevData,
+                                        page: 1,
+                                        pageSize: 5
+                                    }))
+                                }}
+                            />
+                        )}
                         <Dropdown
                             name="status"
                             options={status}
@@ -133,7 +189,7 @@ const Index = () => {
                     totalRecords={totalRecords}
                 />
             </div>
-        </LayoutContent>
+        </LayoutContent >
     )
 }
 

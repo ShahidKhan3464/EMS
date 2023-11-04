@@ -2,16 +2,21 @@ import React, { useState } from 'react';
 import * as Yup from "yup";
 import { Form } from "antd";
 import { Icons } from 'assets';
-import { useNavigate } from 'react-router-dom';
 import StyledAuthBox from 'components/authBox';
 import TextFieldInput from 'components/inputField';
+import { resetPassword } from 'redux/auth/actions';
 import { Formik, Field, ErrorMessage } from "formik";
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 import { PrimaryButton, FieldErrorMessage } from 'styles/global';
 
 const Index = () => {
+    const location = useLocation()
+    const dispatch = useDispatch()
     const navigate = useNavigate()
-    const [loading, setLoading] = useState(false)
+    const { loading } = useSelector((state) => state.authReducers.resetPassword)
+    const email = location.state
 
     const initialValues = {
         newPassword: "",
@@ -58,13 +63,12 @@ const Index = () => {
         )
     }
 
+    const moveRouter = () => { navigate("/") }
+
     const handleSubmit = async (data) => {
-        try {
-
-        }
-        catch (error) {
-
-        }
+        data.email = email
+        data.password = data.newPassword
+        dispatch(resetPassword(data, moveRouter))
     }
 
     return (

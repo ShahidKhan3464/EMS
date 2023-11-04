@@ -1,9 +1,10 @@
 import { combineReducers } from 'redux';
-import { list, details } from './reducers';
+import { list, details, refund } from './reducers';
 
 const bookingsReducers = combineReducers({
     list,
-    details
+    refund,
+    details,
 })
 
 export default bookingsReducers

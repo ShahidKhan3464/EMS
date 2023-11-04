@@ -24,13 +24,15 @@ export const serviceProvidersList = (data) => async (dispatch) => {
     }
 }
 
-export const serviceProviderBookingDetails = (data) => async (dispatch) => {
+export const serviceProviderBookingDetails = ({ data, successCallBack }) => async (dispatch) => {
     dispatch({ type: SERVICE_PROVIDER_BOOKING_DETAILS_REQUEST })
     try {
         const response = await api.post('/booking/get-all-booking', data)
         if (response.data.Succeeded) {
             const totalRecords = response.data.TotalRecords
+            const serviceProviderId = data.condition.providerService?.user?.id
             dispatch({ type: SERVICE_PROVIDER_BOOKING_DETAILS_SUCCESS, payload: { data: response.data.data, totalRecords } })
+            successCallBack && successCallBack(serviceProviderId, true, 'block')
         }
     }
     catch (err) {

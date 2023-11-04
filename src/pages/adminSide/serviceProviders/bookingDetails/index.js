@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Table from './table';
 import { Icons } from 'assets';
 import LayoutContent from 'layout';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
+import { payloadData } from 'utils';
 import Tabs from '@mui/material/Tabs';
 import Dropdown from 'components/dropDown';
 import { useParams } from 'react-router-dom';
@@ -11,7 +12,8 @@ import { useNavigate } from 'react-router-dom';
 import { StyledMainHeading } from 'styles/global';
 import { useDispatch, useSelector } from 'react-redux';
 import TableSearchHandler from 'components/searchField';
-import { capitalizeFirstLetter, payloadData } from 'utils';
+import PriceRangeButton from 'components/priceRangeBtn';
+import PriceRangeContent from 'components/priceRangeContent';
 import { serviceProviderBookingDetails } from 'redux/serviceProviders/actions';
 
 const Index = () => {
@@ -20,13 +22,14 @@ const Index = () => {
     const dispatch = useDispatch()
     const [page, setPage] = useState(1)
     const [value, setValue] = useState(0)
+    const searchDebounceTimerRef = useRef(null)
     const [rowsPerPage, setRowsPerPage] = useState(5)
     const [searchQuery, setSearchQuery] = useState('')
     const [payload, setPayload] = useState(payloadData)
+    const [priceRange, setPriceRange] = useState({ isSelect: false, values: null })
     const { loading, data } = useSelector((state) => state.serviceProvidersReducers.bookingDetails)
-    const { list, totalRecords, serviceCategory, priceRange } = data
+    const { list, totalRecords, serviceCategory } = data
     const [filter, setFilter] = useState({
-        rating: '',
         serviceCategory: '',
     })
 
@@ -66,12 +69,23 @@ const Index = () => {
                         defaultValue="Service category"
                         handleFilterChange={handleFilterChange}
                     />
-                    <Dropdown
-                        name="price"
-                        options={priceRange}
-                        defaultValue="Price range"
-                        handleFilterChange={handleFilterChange}
+                    <PriceRangeButton
+                        priceRange={priceRange.values}
+                        clicked={() => setPriceRange({ ...priceRange, isSelect: true })}
+                        setPriceRange={() => setPriceRange({ ...priceRange, values: null })}
                     />
+                    {priceRange.isSelect && (
+                        <PriceRangeContent
+                            setPriceRange={(data) => {
+                                setPriceRange({ isSelect: false, values: data ? data : null })
+                                setPayload(prevData => ({
+                                    ...prevData,
+                                    page: 1,
+                                    pageSize: 5
+                                }))
+                            }}
+                        />
+                    )}
                 </div>
                 <TableSearchHandler
                     value={searchQuery}
@@ -88,37 +102,50 @@ const Index = () => {
         })
     }
 
-    const buildCondition = (value, searchValue = "") => {
+    const buildCondition = (value, searchValue) => {
         const bookingStatus = {
             0: 'COMPLETED',
             1: 'IN_PROGRESS',
         }
 
-        const condition = { providerService: { id } }
+        const condition = { bookedState: bookingStatus[value], providerService: { user: { id } } }
+
+        if (filter) {
+            if (filter.serviceCategory) {
+                condition.providerService = { categories: filter.serviceCategory.toUpperCase() }
+            }
+        }
+
+        if (priceRange.values) {
+            if (!condition.providerService) {
+                condition.providerService = {}
+            }
+
+            condition.providerService.price = {
+                $Between: priceRange.values.from + "," + priceRange.values.to
+            }
+        }
 
         if (searchValue) {
-            const filterValueInSearch = [
-                condition,
-                // { name: { $ILike: capitalizeFirstLetter(searchValue) } },
-            ]
-
-            if (filter.serviceCategory) {
-                // filterValueInSearch.push({ categories: capitalizeFirstLetter(filter.serviceCategory) })
-            }
-
-            return filterValueInSearch
+            condition.uniqueId = { $ILike: searchValue }
+            return [condition]
         }
 
-        else {
-            if (filter.serviceCategory) {
-                condition.providerService = { id, categories: capitalizeFirstLetter(filter.serviceCategory) }
-            }
-
-            return condition
-        }
+        return condition
     }
 
-    const handleSearchQueryChange = (value) => setSearchQuery(value)
+    const delayedAPICallForSearch = (updatedPayload) => {
+        dispatch(serviceProviderBookingDetails({ data: updatedPayload }))
+    }
+
+    const handleSearchQueryChange = (value) => {
+        setSearchQuery(value)
+        setPayload(prevData => ({
+            ...prevData,
+            page: 1,
+            pageSize: 5
+        }))
+    }
 
     const handleFilterChange = (name, value) => {
         setPage(1)
@@ -139,10 +166,23 @@ const Index = () => {
     useEffect(() => {
         const updatedPayload = {
             ...payload,
-            condition: buildCondition(value),
+            condition: buildCondition(value, searchQuery),
         }
-        dispatch(serviceProviderBookingDetails(updatedPayload))
-    }, [value, filter, payload, dispatch])
+
+        if (searchQuery) {
+            clearTimeout(searchDebounceTimerRef.current)
+            searchDebounceTimerRef.current = setTimeout(() => {
+                delayedAPICallForSearch(updatedPayload)
+            }, 1000)
+        }
+
+        else {
+            dispatch(serviceProviderBookingDetails({ data: updatedPayload }))
+        }
+
+        return () => { clearTimeout(searchDebounceTimerRef.current) }
+
+    }, [priceRange.values, value, filter, payload, dispatch])
 
     return (
         <LayoutContent>

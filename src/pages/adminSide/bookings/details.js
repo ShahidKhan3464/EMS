@@ -2,9 +2,9 @@ import React, { useEffect } from 'react';
 import { Icons } from 'assets';
 import LayoutContent from 'layout';
 import { useDispatch, useSelector } from 'react-redux';
-import { bookingDetails } from 'redux/bookings/actions';
 import { useNavigate, useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
+import { bookingDetails, bookingRefund } from 'redux/bookings/actions';
 import { capitalizeFirstLetter, getPricingOption, statusColors, truncatedString } from 'utils';
 import { StyledBookedServiceDetails, StyledLoadingContainer, StyledMainHeading, StyledStatus } from 'styles/global';
 
@@ -14,11 +14,15 @@ const Index = () => {
     const { bookingId } = useParams()
     const { loading, data } = useSelector((state) => state.bookingsReducers.details)
     const { firstName: cusFirstName, lastName: cusLastName } = data?.user?.profile || {}
+    const { loading: refundLoading } = useSelector((state) => state.bookingsReducers.refund)
     const { firstName: serProvFirstName, lastName: serProvLastName } = data?.providerService?.user?.profile || {}
     const cusProvName = `${cusFirstName} ${cusLastName}`
     const serProvName = `${serProvFirstName} ${serProvLastName}`
 
     const getStatus = (str) => {
+        if (str?.toLowerCase() === 'in_progress') {
+            return str
+        }
         return str?.split("_")[0]
     }
 
@@ -30,13 +34,33 @@ const Index = () => {
         <LayoutContent>
             <StyledBookedServiceDetails>
                 <div className='header'>
-                    <StyledMainHeading>Booked service details</StyledMainHeading>
-                    <button
-                        type='button'
-                        onClick={() => navigate(-1)}
-                    >
-                        <img src={Icons.backBtn} alt='back-arrow' />
-                    </button>
+                    <div>
+                        <StyledMainHeading>Booked service details</StyledMainHeading>
+                        <button
+                            type='button'
+                            onClick={() => navigate(-1)}
+                        >
+                            <img src={Icons.backBtn} alt='back-arrow' />
+                        </button>
+                    </div>
+                    {data?.bookedState === "IN_PROGRESS" && (
+                        <button
+                            className='refund-btn'
+                            onClick={async () => {
+                                await dispatch(bookingRefund(bookingId))
+                                dispatch(bookingDetails(bookingId))
+                            }}
+                        >
+                            {refundLoading ? (
+                                <CircularProgress
+                                    size={22}
+                                    color='inherit'
+                                />
+                            ) : (
+                                "Refund amount"
+                            )}
+                        </button>
+                    )}
                 </div>
                 <div className='details-content'>
                     {loading ? (
@@ -117,8 +141,8 @@ const Index = () => {
                                 <div className='details-content_pricePerHour'>
                                     <p>Service hours:</p>
                                     <div>
-                                        <span className='hour'>7*€{data.providerService.price} = </span>
-                                        <span className='total'>€140</span>
+                                        <span className='hour'>{data.providerService.hours}*€{data.providerService.price} = </span>
+                                        <span className='total'>€{data.providerService.hours * data.providerService.price}</span>
                                     </div>
                                 </div>
                             )}

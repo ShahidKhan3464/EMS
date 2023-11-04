@@ -466,7 +466,6 @@ export const StyledChatBox = styled.div`
                 position: relative;
                 border-radius: 4px;
                 background: #424242;
-                /* grid-template-columns: 1fr auto; */
                 grid-template-columns: 1fr 1fr 1fr;
                 filter: drop-shadow(0px 1px 4px rgba(0, 0, 0, 0.10));
 

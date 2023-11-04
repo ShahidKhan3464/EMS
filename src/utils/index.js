@@ -6,6 +6,19 @@ export const getToken = () => {
     return data.token ?? null
 }
 
+export const dateFormatOptions = {
+    hour12: false,
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    timeZone: 'UTC',
+    weekday: 'short',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZoneName: 'short',
+}
+
 export const truncatedString = (str) => {
     const truncatedText = str?.length > 30 ? `${str.slice(0, 25)}...` : str
     return truncatedText
@@ -29,6 +42,21 @@ export const getPricingOption = (option) => {
     }
 }
 
+export const shortestFormatNumber = (number) => {
+    if (number >= 1e9) {
+        return (number / 1e9).toFixed(1) + "B";
+    }
+    else if (number >= 1e6) {
+        return (number / 1e6).toFixed(1) + "M";
+    }
+    else if (number >= 1e3) {
+        return (number / 1e3).toFixed(1) + "K";
+    }
+    else {
+        return number
+    }
+}
+
 export const payloadData = {
     page: 1,
     pageSize: 5,
@@ -36,6 +64,110 @@ export const payloadData = {
     attributes: {},
     sortColumn: "id",
     order: { id: "DESC" },
+}
+
+export const graphOptions = {
+    responsive: true,
+    plugins: {
+        legend: {
+            display: false,
+        },
+    },
+    interaction: {
+        padding: 15,
+        boxWidth: 0,
+        boxHeight: 0,
+        mode: 'index',
+        caretSize: 10,
+        bodySpacing: 10,
+        cornerRadius: 10,
+        intersect: false,
+        bodyAlign: 'right',
+        bodyColor: '#C29137',
+        titleMarginBottom: 10,
+        titleColor: '#CFCFCF',
+        backgroundColor: '#090D1F',
+        titleFont: {
+            size: 12,
+            weight: 'normal',
+            family: 'Poppins',
+        },
+        bodyFont: {
+            size: 16,
+            weight: 'bold',
+            family: 'Poppins',
+        },
+        callbacks: {
+            title: () => 'INCOME',
+            label: (context) => {
+                let label = context.dataset.label || ''
+                if (label) {
+                    label += ': '
+                }
+                if (context.parsed.y !== null) {
+                    label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(context.parsed.y)
+                }
+                return label
+            },
+            afterBody: (context) => {
+                const monthIndex = context[0].dataIndex
+                if (monthIndex === 0) {
+                    return []
+                }
+                else {
+                    const tooltipItems = []
+                    const currentIncome = context[0].parsed.y
+                    const dataset = context[0].chart.data.datasets[0]
+                    const expenses = dataset.data
+                    const previousIncome = expenses[monthIndex - 1]
+                    const profit = currentIncome - previousIncome
+                    const profitPercentage = ((profit / previousIncome) * 100).toFixed(0)
+
+                    if (profit > 0) {
+                        if (previousIncome === 0) {
+                            tooltipItems.push(`${profit}%`)
+                        }
+                        else {
+                            tooltipItems.push(`+ ${profitPercentage}%`)
+                        }
+                    }
+                    else if (profit < 0) {
+                        tooltipItems.push(`${profitPercentage}%`)
+                    }
+                    // else {
+                    //     tooltipItems.push(`${profitPercentage}%`)
+                    // }
+                    return tooltipItems
+                }
+            },
+        }
+    },
+    scales: {
+        y: {
+            grid: { display: false },
+            border: { display: false },
+            ticks: {
+                color: 'rgba(251, 251, 252, 0.5)',
+                font: {
+                    size: 12,
+                    style: 'normal',
+                    family: 'Poppins',
+                },
+            },
+        },
+        x: {
+            grid: { display: false },
+            border: { display: false },
+            ticks: {
+                color: 'rgba(218, 219, 220, 0.5)',
+                font: {
+                    size: 12,
+                    style: 'normal',
+                    family: 'Poppins',
+                },
+            },
+        },
+    },
 }
 
 export const statusColors = {
@@ -54,6 +186,10 @@ export const statusColors = {
     UNAVAILABLE: {
         color: '#FB4646',
         background: 'rgba(236, 60, 70, 0.15)',
+    },
+    REFUNDED: {
+        color: '#43B750',
+        background: 'rgba(67, 183, 80, 0.20)',
     },
     COMPLETED: {
         color: '#43B750',

@@ -152,9 +152,7 @@ const Index = () => {
                         />
                         <BookedServices
                             id={id}
-                            rating={data?.rating}
                             booking={data.booking ?? []}
-                            totalReviews={data?.sentFeedbackReceiver?.length}
                         />
                     </React.Fragment>
                 )}

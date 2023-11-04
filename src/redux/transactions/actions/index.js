@@ -1,3 +1,3 @@
-import { transactionsList } from './actions';
+import { transactionsList, transactionDetails, transactionRevenue } from './actions';
 
-export { transactionsList }
+export { transactionsList, transactionDetails, transactionRevenue }
