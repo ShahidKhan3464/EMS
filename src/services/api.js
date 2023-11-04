@@ -4,8 +4,8 @@ import { getToken } from 'utils';
 // const { REACT_APP_PUBLIC_URL } = process.env
 const authToken = getToken()
 
-// const baseURL = 'https://devbackend.art-event.eu'
-const baseURL = 'https://ec88-203-99-174-147.ngrok-free.app'
+const baseURL = 'https://devbackend.art-event.eu'
+// const baseURL = 'https://ec88-203-99-174-147.ngrok-free.app'
 
 class ApiClient {
 
