@@ -211,11 +211,6 @@ const Index = ({ data }) => {
                                     <Text style={styles.content.body.trscHistory.detail.layout.value}>{data?.customerName}</Text>
                                 </View>
 
-                                <View style={styles.content.body.trscHistory.advancePayment.layout}>
-                                    <Text style={styles.content.body.trscHistory.advancePayment.layout.key}>Platform received amount</Text>
-                                    <Text style={styles.content.body.trscHistory.advancePayment.layout.value}>€{data?.platformFee}</Text>
-                                </View>
-
                                 <View style={styles.content.body.trscHistory.detail.layout}>
                                     <Text style={styles.content.body.trscHistory.detail.layout.key}>Date</Text>
                                     <Text style={styles.content.body.trscHistory.detail.layout.value}>{moment(data?.date).format('DD MMM YYYY')}</Text>
@@ -237,6 +232,13 @@ const Index = ({ data }) => {
                                         <Text style={styles.content.body.trscHistory.advancePayment.layout.key}>Payable amount</Text>
                                         <Text style={styles.content.body.trscHistory.advancePayment.layout.value}>€{data?.payableAmount}</Text>
                                     </View>
+                                </View>
+                            )}
+
+                            {parseInt(data?.platformFee) && (
+                                <View style={styles.content.body.trscHistory.advancePayment.layout}>
+                                    <Text style={styles.content.body.trscHistory.advancePayment.layout.key}>Platform received amount</Text>
+                                    <Text style={styles.content.body.trscHistory.advancePayment.layout.value}>€{data?.platformFee}</Text>
                                 </View>
                             )}
 

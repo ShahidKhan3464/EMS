@@ -238,8 +238,7 @@ const Index = () => {
                                     type='button'
                                     className='unblock-btn'
                                     onClick={() => {
-                                        setDialogOpen(true)
-                                        setDialogType('unblock')
+                                        dispatch(serviceProviderBookingDetails({ data: updatedPayload, option: 'unblock', successCallBack: refundPolicy }))
                                     }}
                                 >
                                     Unblock
@@ -249,7 +248,7 @@ const Index = () => {
                                     type='button'
                                     className='block-btn'
                                     onClick={() => {
-                                        dispatch(serviceProviderBookingDetails({ data: updatedPayload, successCallBack: refundPolicy }))
+                                        dispatch(serviceProviderBookingDetails({ data: updatedPayload, option: 'block', successCallBack: refundPolicy }))
                                     }}
                                 >
                                     Block
@@ -269,7 +268,8 @@ const Index = () => {
                             email={data.email}
                             rating={data.rating}
                             profile={data.profile}
-                            noOfOrder={data.booking?.length}
+                            income={data.totalEarning}
+                            noOfOrder={data.totalBooking}
                             noOfServices={data.providerService?.length}
                             vatCer={data.companyProfile?.[0]?.vatCertificate}
                         />

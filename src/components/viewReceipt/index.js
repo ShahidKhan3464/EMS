@@ -42,7 +42,6 @@ const Index = ({ id, componentRef = null }) => {
                                 <p className='key'>Service provider name<span className='value'>{data?.providerName}</span></p>
                                 <p className='key'>Service name<span className='value'>{data?.serviceName}</span></p>
                                 <p className='key'>Customer name<span className='value'>{data?.customerName}</span></p>
-                                <p className='key'>Platform received amount <span className='value'>€{data?.platformFee}</span></p>
                                 <p className='key'>Date <span className='value'>{moment(data?.date).format('DD MMM YYYY')}</span></p>
                                 <p className='key'>Time <span className='value'>{moment(data?.date).format('hh:mm A')}</span></p>
                             </div>
@@ -51,6 +50,12 @@ const Index = ({ id, componentRef = null }) => {
                                 <div className='content_body_trsc-history_advancePayment' style={{ borderTop: 'none' }}>
                                     <p className='key'>Advance payment <span className='value'>{data?.advancePaymentPercentage}%</span></p>
                                     <p className='key'>Payable amount<span className='value'>€{data?.payableAmount}</span></p>
+                                </div>
+                            )}
+
+                            {parseInt(data?.platformFee) !== 0 && (
+                                <div className='content_body_trsc-history_advancePayment' style={{ borderTop: 'none' }}>
+                                    <p className='key'>Platform received amount <span className='value'>€{data?.platformFee}</span></p>
                                 </div>
                             )}
 

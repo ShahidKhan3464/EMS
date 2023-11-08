@@ -7,7 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import { StyledVatCertificate } from 'styles/global';
 import { capitalizeFirstLetter, truncatedString } from 'utils';
 
-const Index = ({ id, rating, email, profile, noOfOrder, noOfServices, vatCer }) => {
+const Index = ({ id, rating, email, profile, income, noOfOrder, noOfServices, vatCer }) => {
     const navigate = useNavigate()
     const { firstName, lastName } = profile ?? {}
     const name = `${firstName} ${lastName}`
@@ -99,7 +99,7 @@ const Index = ({ id, rating, email, profile, noOfOrder, noOfServices, vatCer }) 
                             </div>
                             <div className='profile_content_text_box_pair'>
                                 <h6>Income</h6>
-                                <p>€10,000</p>
+                                <p>€{income}</p>
                             </div>
                         </div>
                         <div className='profile_content_text_box'>

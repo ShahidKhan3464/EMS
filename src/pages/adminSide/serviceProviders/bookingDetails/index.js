@@ -4,7 +4,7 @@ import { Icons } from 'assets';
 import LayoutContent from 'layout';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import { payloadData } from 'utils';
+import { capitalizeFirstLetter, payloadData } from 'utils';
 import Tabs from '@mui/material/Tabs';
 import Dropdown from 'components/dropDown';
 import { useParams } from 'react-router-dom';
@@ -104,16 +104,14 @@ const Index = () => {
 
     const buildCondition = (value, searchValue) => {
         const bookingStatus = {
-            0: 'COMPLETED',
+            0: 'COMPLETED_BY_CUSTOMER',
             1: 'IN_PROGRESS',
         }
 
         const condition = { bookedState: bookingStatus[value], providerService: { user: { id } } }
 
-        if (filter) {
-            if (filter.serviceCategory) {
-                condition.providerService = { categories: filter.serviceCategory.toUpperCase() }
-            }
+        if (filter && filter.serviceCategory) {
+            condition.providerService.categories = capitalizeFirstLetter(filter.serviceCategory);
         }
 
         if (priceRange.values) {

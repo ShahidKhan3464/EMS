@@ -11,7 +11,7 @@ const serviceCategory = [
 ]
 
 const status = [
-    { value: 'completed', text: 'Completed' },
+    { value: 'completed_by_customer', text: 'Completed' },
     { value: 'in_progress', text: 'In progress' },
 ]
 

@@ -27,6 +27,7 @@ const mdPadding = {
 const Index = () => {
     const dispatch = useDispatch()
     const [noOfMonths, setNoOfMonths] = useState(null)
+    const [isGraphData, setIsGraphData] = useState(false)
     const [width, setWidth] = useState(window.innerWidth)
     const [selectedDate, setSelectedDate] = useState(null)
     const { data, loading } = useSelector((state) => state.transactionsReducers.revenue)
@@ -183,8 +184,14 @@ const Index = () => {
     }
 
     useEffect(() => {
-        dispatch(transactionRevenue({ successCallBack: generateGraphData }))
+        dispatch(transactionRevenue({ successCallBack: () => setIsGraphData(true) }))
     }, [dispatch])
+
+    useEffect(() => {
+        if (isGraphData) {
+            generateGraphData(selectedDate, noOfMonths)
+        }
+    }, [isGraphData])
 
     return (
         <StyledGraph

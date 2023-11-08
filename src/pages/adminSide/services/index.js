@@ -153,7 +153,7 @@ const Index = () => {
 
         if (filter) {
             if (filter.serviceCategory) {
-                condition.categories = filter.serviceCategory.toUpperCase()
+                condition.categories = capitalizeFirstLetter(filter.serviceCategory)
             }
 
             if (filter.rating) {

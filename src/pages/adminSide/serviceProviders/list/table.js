@@ -156,14 +156,8 @@ const Index = ({ payload, data, value, options, loading, totalRecords, setPayloa
             ...payload,
             condition: { bookedState: "IN_PROGRESS", providerService: { user: { id } } }
         }
-        if (option === 'block') {
-            dispatch(serviceProviderBookingDetails({ data: updatedPayload, successCallBack: refundPolicy }))
-        }
-
-        else if (option === 'unblock') {
-            setId(id)
-            setDialogOpen(true)
-            setDialogType(option)
+        if (option === 'block' || option === 'unblock') {
+            dispatch(serviceProviderBookingDetails({ data: updatedPayload, option: option, successCallBack: refundPolicy }))
         }
 
         else if (option === 'view reason') {

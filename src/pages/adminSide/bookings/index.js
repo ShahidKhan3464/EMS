@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Table from './table';
 import LayoutContent from 'layout';
-import { payloadData } from 'utils';
+import { capitalizeFirstLetter, payloadData } from 'utils';
 import Dropdown from 'components/dropDown';
 import { StyledMainHeading } from 'styles/global';
 import { bookingsList } from 'redux/bookings/actions';
@@ -31,7 +31,7 @@ const Index = () => {
 
         if (filter) {
             if (filter.serviceCategory) {
-                condition.providerService = { categories: filter.serviceCategory.toUpperCase() }
+                condition.providerService = { categories: capitalizeFirstLetter(filter.serviceCategory) }
             }
 
             if (filter.status) {
@@ -39,7 +39,7 @@ const Index = () => {
             }
 
             if (filter.location) {
-                condition.location = { $ILike: filter.location }
+                condition.location = { $ILike: capitalizeFirstLetter(filter.location) }
             }
         }
 

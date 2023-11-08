@@ -5,7 +5,7 @@ import { getToken } from 'utils';
 const authToken = getToken()
 
 const baseURL = 'https://devbackend.art-event.eu'
-// const baseURL = 'https://ec88-203-99-174-147.ngrok-free.app'
+// const baseURL = 'https://131e-203-99-174-147.ngrok-free.app'
 
 class ApiClient {
 

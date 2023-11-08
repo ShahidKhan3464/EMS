@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Icons } from 'assets';
 import LayoutContent from 'layout';
+import Dialog from 'components/dialog';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -12,12 +13,69 @@ const Index = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const { bookingId } = useParams()
+    const [dialogOpen, setDialogOpen] = useState(false)
     const { loading, data } = useSelector((state) => state.bookingsReducers.details)
     const { firstName: cusFirstName, lastName: cusLastName } = data?.user?.profile || {}
     const { loading: refundLoading } = useSelector((state) => state.bookingsReducers.refund)
     const { firstName: serProvFirstName, lastName: serProvLastName } = data?.providerService?.user?.profile || {}
     const cusProvName = `${cusFirstName} ${cusLastName}`
     const serProvName = `${serProvFirstName} ${serProvLastName}`
+
+    const getAmountToRefund = () => {
+        if (data?.providerService?.pricingOption === 'PER_HOUR') {
+            return data.providerService.hours * data.providerService.price
+        }
+        else {
+            return data.providerService.price
+        }
+    }
+
+    const refundContent = () => {
+        return (
+            <React.Fragment>
+                <div className='icon'>
+                    <img src={Icons.setting} alt='setting-icon' />
+                </div>
+
+                <div className='text'>
+                    <h3>
+                        Refund
+                    </h3>
+                    <p>
+                        Are you sure you want to refund €{getAmountToRefund()}?
+                    </p>
+                </div>
+
+                <div className='btn-container'>
+                    <button
+                        type='button'
+                        className='cancel-btn'
+                        onClick={() => setDialogOpen(false)}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type='button'
+                        className='control-btn'
+                        onClick={async () => {
+                            await dispatch(bookingRefund(bookingId))
+                            dispatch(bookingDetails(bookingId))
+                            setDialogOpen(false)
+                        }}
+                    >
+                        {refundLoading ? (
+                            <CircularProgress
+                                size={22}
+                                color='inherit'
+                            />
+                        ) : (
+                            "Yes"
+                        )}
+                    </button>
+                </div>
+            </React.Fragment>
+        )
+    }
 
     const getStatus = (str) => {
         if (str?.toLowerCase() === 'in_progress') {
@@ -32,6 +90,13 @@ const Index = () => {
 
     return (
         <LayoutContent>
+            {dialogOpen && (
+                <Dialog
+                    open={dialogOpen}
+                    setOpen={setDialogOpen}
+                    content={refundContent()}
+                />
+            )}
             <StyledBookedServiceDetails>
                 <div className='header'>
                     <div>
@@ -46,19 +111,9 @@ const Index = () => {
                     {data?.bookedState === "IN_PROGRESS" && (
                         <button
                             className='refund-btn'
-                            onClick={async () => {
-                                await dispatch(bookingRefund(bookingId))
-                                dispatch(bookingDetails(bookingId))
-                            }}
+                            onClick={() => setDialogOpen(true)}
                         >
-                            {refundLoading ? (
-                                <CircularProgress
-                                    size={22}
-                                    color='inherit'
-                                />
-                            ) : (
-                                "Refund amount"
-                            )}
+                            Refund amount
                         </button>
                     )}
                 </div>
@@ -156,7 +211,7 @@ const Index = () => {
                             </div>
                             <div className='details-content_totalAmount'>
                                 <h2>
-                                    €20
+                                    €{data?.platFormFee}
                                     <span>(Total amount received)</span>
                                 </h2>
                             </div>

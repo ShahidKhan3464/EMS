@@ -63,7 +63,7 @@ const Index = () => {
             if (!condition.profile) {
                 condition.profile = {}
             }
-            condition.profile.address = { $ILike: location }
+            condition.profile.address = { $ILike: capitalizeFirstLetter(location) }
         }
 
         if (searchValue) {

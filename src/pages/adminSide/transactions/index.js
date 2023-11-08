@@ -157,7 +157,13 @@ const Index = () => {
                             selected={selectDate}
                             placeholderText="Date"
                             dateFormat="d MMM yyyy"
-                            onChange={(date) => setSelectDate(date)}
+                            onChange={(date) => {
+                                setSelectDate(date)
+                                setPayload(prevData => ({
+                                    ...prevData,
+                                    page: 1,
+                                }))
+                            }}
                         />
                     </StyledDatepickerContainer>
                     <Dropdown
@@ -327,7 +333,7 @@ const Index = () => {
 
         return () => { clearTimeout(searchDebounceTimerRef.current) }
 
-    }, [selectDate, value, filter, payload, dispatch])
+    }, [value, filter, payload, dispatch])
 
     return (
         <LayoutContent>

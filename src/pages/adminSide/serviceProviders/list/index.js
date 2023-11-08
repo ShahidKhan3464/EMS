@@ -129,15 +129,15 @@ const Index = () => {
         }
 
         const condition = {
-            profileApprovedStatus: 'APPROVED',
             block: profileStatus[value],
+            profileApprovedStatus: 'APPROVED',
         }
 
         const applyFilterConditions = (condition) => {
             const { serviceCategory, rating, location, status } = filter
 
             if (serviceCategory) {
-                condition.providerService = { categories: serviceCategory.toUpperCase() }
+                condition.providerService = { categories: capitalizeFirstLetter(serviceCategory) }
             }
 
             if (rating) {
@@ -148,7 +148,7 @@ const Index = () => {
                 condition.profile = condition.profile || {}
 
                 if (location) {
-                    condition.profile.address = { $ILike: filter.location }
+                    condition.profile.address = { $ILike: capitalizeFirstLetter(filter.location) }
                 }
 
                 if (status) {
@@ -167,7 +167,7 @@ const Index = () => {
             }
 
             if (serviceCategory) {
-                fullNameCondition.providerService = { categories: serviceCategory.toUpperCase() }
+                fullNameCondition.providerService = { categories: capitalizeFirstLetter(serviceCategory) }
             }
 
             if (rating) {
