@@ -1,17 +1,14 @@
 import axios from 'axios';
 import { getToken } from 'utils';
 
-// const { REACT_APP_PUBLIC_URL } = process.env
+const { REACT_APP_BASE_URL } = process.env
 const authToken = getToken()
-
-const baseURL = 'https://devbackend.art-event.eu'
-// const baseURL = 'https://131e-203-99-174-147.ngrok-free.app'
 
 class ApiClient {
 
     constructor() {
         this.client = axios.create({
-            baseURL: baseURL,
+            baseURL: REACT_APP_BASE_URL,
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
